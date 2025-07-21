@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {
     CandlestickSeries,
     ColorType,
@@ -12,6 +12,35 @@ import useTrading from "../hook/useTrading.tsx";
 import {_Timeframe} from "../lib/api/@type.ts";
 import dayjs from "dayjs";
 
+
+const convertDate = (interval: _Timeframe, timestamp:number) => {
+    const date = dayjs.unix(timestamp); // timestamp dạng UNIX (second)
+    switch (interval) {
+        case _Timeframe.OneMinute:
+        case _Timeframe.FiveMinute:
+        case _Timeframe.FifteenMinutes:
+            return date.format('HH:mm');
+        case _Timeframe.ThirtyMinutes:
+        case _Timeframe.FortyFiveMinutes:
+        case _Timeframe.OneHour:
+            return date.format('HH:mm DD MMM ');
+        case _Timeframe.OneDay:
+            return date.format('DD MMM');
+        case _Timeframe.OneWeek:
+            return date.format('YYYY-MM-DD');
+        default:
+            return date.format('YYYY-MM-DD HH:mm');
+    }
+}
+// Just to fix TS error
+declare global {
+    interface Window {
+        ReactNativeWebView?: {
+            postMessage: (message: string) => void;
+        };
+    }
+
+}
 const Chart = () => {
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<IChartApi>(null);
@@ -23,17 +52,22 @@ const Chart = () => {
     const [userId, setUserId] = useState<string>("");
     const [secret, setSecret] = useState<string>("");
 
+    useLayoutEffect(() => {
+        setTimeout(() => {
+            if (window?.ReactNativeWebView?.postMessage) {
+                window?.ReactNativeWebView.postMessage('READY');
+            }
+        }, 100); // delay nhẹ cho chắc
+    }, []);
     useEffect(() => {
         const handler = (event: MessageEvent) => {
             try {
                 const data = JSON.parse(event.data);
-                if (data.type === 'SET_SYMBOL') {
-                    setSymbol(data.symbol || '');
-                    setInterval(data.interval || _Timeframe.OneMinute);
-                    setChartType(data.chartType || '');
-                    setUserId(data.user_id || '');
-                    setSecret(data.secret || '');
-                }
+                setSymbol(data.symbol || '');
+                setInterval(data.interval || _Timeframe.OneMinute);
+                setChartType(data.chartType || '');
+                setUserId(data.user_id || '');
+                setSecret(data.secret || '');
             } catch (err) {
                 console.error('Invalid message from RN:', err);
             }
@@ -77,42 +111,12 @@ const Chart = () => {
             chart.applyOptions({
                 timeScale: {
                     tickMarkFormatter: (timestamp: number) => {
-                        const date = dayjs.unix(timestamp); // timestamp dạng UNIX (second)
-                        switch (interval) {
-                            case _Timeframe.OneMinute:
-                            case _Timeframe.FiveMinute:
-                            case _Timeframe.FifteenMinutes:
-                            case _Timeframe.ThirtyMinutes:
-                            case _Timeframe.FortyFiveMinutes:
-                            case _Timeframe.OneHour:
-                                return date.format('HH:mm');
-                            case _Timeframe.OneDay:
-                                return date.format('DD MMM');
-                            case _Timeframe.OneWeek:
-                                return date.format('YYYY-MM-DD');
-                            default:
-                                return date.format('YYYY-MM-DD HH:mm');
-                        }
+                        return convertDate(interval, timestamp);
                     }
                 },
                 localization: {
                     timeFormatter: (timestamp: number) => {
-                        const date = dayjs.unix(timestamp); // timestamp dạng UNIX (second)
-                        switch (interval) {
-                            case _Timeframe.OneMinute:
-                            case _Timeframe.FiveMinute:
-                            case _Timeframe.FifteenMinutes:
-                            case _Timeframe.ThirtyMinutes:
-                            case _Timeframe.FortyFiveMinutes:
-                            case _Timeframe.OneHour:
-                                return date.format('HH:mm');
-                            case _Timeframe.OneDay:
-                                return date.format('DD MMM');
-                            case _Timeframe.OneWeek:
-                                return date.format('YYYY-MM-DD');
-                            default:
-                                return date.format('YYYY-MM-DD HH:mm');
-                        }
+                        return convertDate(interval, timestamp);
                     }
                 }
             })
@@ -157,13 +161,14 @@ const Chart = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
             }}>
                 <div className={"loader"}></div>
             </div>}
             <div
                 ref={chartContainerRef}
                 style={{
+                    overflowY:'hidden',
                     width: '100%',
                     height: '100vh',
                     visibility: !loading && !isError ? 'visible' : 'hidden',
