@@ -72,9 +72,11 @@ const Chart = () => {
                 console.error('Invalid message from RN:', err);
             }
         };
-        window.addEventListener('message', handler);
+        window.addEventListener("message", handler); // iOS + web
+        document.addEventListener("message", handler as EventListener); // for Android
         return () => {
-            window.removeEventListener('message', handler);
+            window.removeEventListener("message", handler);
+            document.removeEventListener("message", handler as EventListener);
         };
     }, []);
 
