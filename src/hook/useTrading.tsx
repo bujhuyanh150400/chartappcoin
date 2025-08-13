@@ -78,6 +78,7 @@ const useTrading = ({symbol, interval, user_id, secret}: Params) => {
                 interval,
                 outputsize: 300,
                 order: 'ASC',
+                timezone: "Asia/Bangkok"
             });
         },
         select: (res) => res.values ?? [],
