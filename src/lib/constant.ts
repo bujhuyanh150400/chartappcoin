@@ -1,4 +1,5 @@
 
-export const WS_URL = 'ws://116.118.60.103:5001';
+export const WS_URL = 'wss://ws.vjlink.com.vn'; // Thay bằng IP backend thật
 
-export const BACKEND_API_URL = 'http://116.118.60.103/api'
+export const BACKEND_API_URL = 'https://vjlink.com.vn/api'
+
