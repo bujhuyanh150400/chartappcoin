@@ -9,6 +9,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    allowedHosts: ['103.81.84.63']
+    allowedHosts: ['app.vjlink.com.vn']
   },
 })
