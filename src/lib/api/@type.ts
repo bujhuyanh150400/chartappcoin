@@ -76,6 +76,10 @@ export enum _AssetType {
     METAL = 3,
     FAVORITE = 5,
 }
+export enum _TypeTrading{
+    VOL = 0,
+    USD = 1,
+}
 export type Transaction = {
     "id": number,
     "type": _TradeType,
@@ -91,6 +95,7 @@ export type Transaction = {
     "open_at": string | null, // ISO 8601 format
     "trigger_at": string | null, // ISO 8601 format
     "close_at": string | null, // ISO 8601 format
+    type_trading: _TypeTrading
     symbol: Symbol
 }
 

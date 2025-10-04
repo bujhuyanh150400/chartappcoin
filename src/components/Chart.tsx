@@ -4,12 +4,13 @@ import {
     CandlestickSeries,
     ColorType,
     createChart,
-    type IChartApi, type IPriceLine,
+    type IChartApi,
+    type IPriceLine,
     type ISeriesApi,
     LineStyle,
 } from "lightweight-charts";
 import useTrading from "../hook/useTrading.tsx";
-import {_Timeframe} from "../lib/api/@type.ts";
+import {_Timeframe, _TypeTrading} from "../lib/api/@type.ts";
 import dayjs from "dayjs";
 import useGetOpenTrans from "../hook/useGetOpenTrans.tsx";
 
@@ -55,7 +56,7 @@ const Chart = () => {
 
     const [symbol, setSymbol] = useState<string>("");
     const [interval, setInter] = useState<_Timeframe>(_Timeframe.OneMinute);
-    const [chartType, setChartType] = useState<string>("");
+    const [chartType, setChartType] = useState<string>("LINE");
     const [userId, setUserId] = useState<string>("");
     const [secret, setSecret] = useState<string>("");
     const [ready, setReady] = useState<boolean>(false);
@@ -65,8 +66,8 @@ const Chart = () => {
         secret: secret,
         symbol: symbol,
         // symbol: 'BTC/USD',
-        // user_id: "20"
-        // secret: "bcb07026-c537-4cbb-9024-761dc1c50727"
+        // user_id: "2",
+        // secret: "8343c5bb-5f53-47c2-b031-cc06347bde27"
     })
 
     useLayoutEffect(() => {
@@ -116,8 +117,8 @@ const Chart = () => {
         secret: secret
         // symbol: 'BTC/USD',
         // interval: _Timeframe.FiveMinute,
-        // user_id: "20",
-        // secret: "bcb07026-c537-4cbb-9024-761dc1c50727"
+        // user_id: "2",
+        // secret: "8343c5bb-5f53-47c2-b031-cc06347bde27"
     });
 
     useEffect(() => {
@@ -223,7 +224,7 @@ const Chart = () => {
                     lineWidth: 2,
                     lineStyle: LineStyle.Dotted,
                     axisLabelVisible: true,
-                    title: `Chốt: ${item.volume}`,
+                    title: `${item.volume} ${item.type_trading === _TypeTrading.USD ? "USD" : "lot"}`,
                     id: `open-${item.id}`,      // phần này tùy chọn, giúp dễ debug
                 });
             }) : [];
